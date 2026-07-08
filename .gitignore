@@ -1,0 +1,9 @@
+# Diretório de objetos gerados na compilação
+obj/
+
+# Executáveis
+aventureiro
+*.exe
+
+# Arquivo gerado pelo script (opcionalmente pode ser ignorado, mas se quiser versionar remova esta linha)
+# jogo_completo.c
