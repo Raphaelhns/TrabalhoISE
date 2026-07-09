@@ -3,6 +3,7 @@
 #include "projectiles.h"
 #include "game.h"
 #include "level.h"
+#include "player_sprites.h"
 
 Jogador player;
 
@@ -17,33 +18,109 @@ void inicializa_jogador(void) {
     player.pontuacao = 0;
     player.invulneravel = 0;
     player.atacando = 0;
+    player.anim_estado = ANIM_INTRO;
+    player.anim_frame = 0;
+    player.anim_timer = 0;
+}
+
+void desenha_sprite(int sx, int sy, const unsigned short *sprite, int w, int h, int espelhar) {
+    int px, py;
+    for (py = 0; py < h; py++) {
+        for (px = 0; px < w; px++) {
+            unsigned short cor = sprite[py * w + px];
+            if (cor == SPRITE_TRANSPARENT) continue; /* pula pixels transparentes */
+
+            int draw_x = espelhar ? (sx + w - 1 - px) : (sx + px);
+            int draw_y = sy + py;
+
+            if (draw_x >= 0 && draw_x < SCREEN_WIDTH && draw_y >= 0 && draw_y < SCREEN_HEIGHT) {
+                desenha_pixel(draw_x, draw_y, cor);
+            }
+        }
+    }
+}
+
+void atualiza_animacao(void) {
+    /* Se a intro esta tocando, deixa ela terminar antes de mudar de estado */
+    if (player.anim_estado == ANIM_INTRO) {
+        player.anim_timer++;
+        if (player.anim_timer >= ANIM_SPEED) {
+            player.anim_timer = 0;
+            player.anim_frame++;
+            if (player.anim_frame >= INTRO_FRAMES) {
+                /* Intro terminou, vai para idle */
+                player.anim_estado = ANIM_IDLE;
+                player.anim_frame = 0;
+                player.anim_timer = 0;
+            }
+        }
+        return;
+    }
+
+    AnimacaoEstado novo_estado;
+
+    /* Determina o estado de animacao baseado no que o jogador esta fazendo */
+    if (player.atacando > 0) {
+        novo_estado = ANIM_SHOOT;
+    } else if (!player.no_chao) {
+        novo_estado = ANIM_JUMP;
+    } else if (player.vx != 0) {
+        novo_estado = ANIM_RUN;
+    } else {
+        novo_estado = ANIM_IDLE;
+    }
+
+    /* Se mudou de estado, reseta a animacao */
+    if (novo_estado != player.anim_estado) {
+        player.anim_estado = novo_estado;
+        player.anim_frame = 0;
+        player.anim_timer = 0;
+    }
+
+    /* Idle e estatico, nao avanca frames */
+    if (player.anim_estado == ANIM_IDLE) return;
+
+    /* Avanca o timer e troca o frame quando necessario */
+    player.anim_timer++;
+    if (player.anim_timer >= ANIM_SPEED) {
+        player.anim_timer = 0;
+        player.anim_frame++;
+
+        /* Volta ao frame 0 quando chega no ultimo */
+        int max_frames;
+        switch (player.anim_estado) {
+            case ANIM_RUN:   max_frames = RUN_FRAMES;   break;
+            case ANIM_SHOOT: max_frames = SHOOT_FRAMES; break;
+            case ANIM_JUMP:  max_frames = JUMP_FRAMES;  break;
+            default:         max_frames = IDLE_FRAMES;   break;
+        }
+        if (player.anim_frame >= max_frames) {
+            player.anim_frame = 0;
+        }
+    }
 }
 
 void desenha_jogador(void) {
     int sx = player.x - camera_x;
     int sy = player.y;
 
+    /* Piscar quando invulneravel */
     if (player.invulneravel > 0 && (player.invulneravel % 6) < 3) {
         return;
     }
 
-    desenha_retangulo(sx, sy + 6, PLAYER_W, PLAYER_H - 10, COLOR_PLAYER_SHIRT);
-    desenha_retangulo(sx + 2, sy, PLAYER_W - 4, 6, COLOR_PLAYER_SKIN);
-    desenha_retangulo(sx, sy - 3, PLAYER_W, 3, COLOR_PLAYER_HAT);
-    desenha_retangulo(sx - 1, sy, PLAYER_W + 2, 2, COLOR_PLAYER_HAT);
-
-    if (player.no_chao && player.vx != 0) {
-        desenha_retangulo(sx + 1, sy + PLAYER_H - 4, 4, 4, COLOR_STONE_DARK);
-        desenha_retangulo(sx + PLAYER_W - 5, sy + PLAYER_H - 4, 4, 4, COLOR_STONE_DARK);
-    } else {
-        desenha_retangulo(sx + 1, sy + PLAYER_H - 4, 4, 4, COLOR_STONE_DARK);
-        desenha_retangulo(sx + PLAYER_W - 5, sy + PLAYER_H - 4, 4, 4, COLOR_STONE_DARK);
+    /* Seleciona o array de frames correto */
+    const unsigned short * const *anim;
+    switch (player.anim_estado) {
+        case ANIM_RUN:   anim = run_anim;   break;
+        case ANIM_SHOOT: anim = shoot_anim; break;
+        case ANIM_JUMP:  anim = jump_anim;  break;
+        case ANIM_INTRO: anim = intro_anim; break;
+        default:         anim = idle_anim;  break;
     }
 
-    if (player.atacando > 0) {
-        int whip_x = (player.direcao == FACING_RIGHT) ? sx + PLAYER_W : sx - 10;
-        desenha_retangulo(whip_x, sy + 8, 10, 2, COLOR_WHIP);
-    }
+    int espelhar = (player.direcao == FACING_LEFT) ? 1 : 0;
+    desenha_sprite(sx, sy, anim[player.anim_frame], SPRITE_W, SPRITE_H, espelhar);
 }
 
 void atualiza_jogador(void) {
@@ -150,4 +227,6 @@ void atualiza_jogador(void) {
             player.x = BANDEIRA_X - PLAYER_W - 1;
         }
     }
+
+    atualiza_animacao();
 }

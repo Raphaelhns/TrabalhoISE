@@ -1,5 +1,5 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef PLAYER_HEADER_H
+#define PLAYER_HEADER_H
 
 #include "types.h"
 #include "constants.h"

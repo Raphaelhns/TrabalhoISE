@@ -4,6 +4,8 @@
 #include "fundo_cenario1.h"
 #include "fundo_cenario2.h"
 #include "fundo_cenario3.h"
+#include "lava_sprites.h"
+#include "token_sprites.h"
 
 Gap gaps[MAX_GAPS];
 Lava lavas[MAX_LAVAS];
@@ -104,6 +106,14 @@ void desenha_ceu(void) {
 void desenha_cenario(void) {
     int sx;
     int i;
+    static int lava_anim_timer = 0;
+    static int lava_anim_frame = 0;
+
+    lava_anim_timer++;
+    if (lava_anim_timer >= ANIM_SPEED) {
+        lava_anim_timer = 0;
+        lava_anim_frame = (lava_anim_frame + 1) % LAVA_TOPO_FRAMES;
+    }
 
     desenha_ceu();
 
@@ -127,10 +137,16 @@ void desenha_cenario(void) {
         if (!eh_gap) {
             int col;
             if (eh_lava) {
-                for (col = 0; col < 4; col++)
-                    desenha_pixel(sx, GROUND_Y + col, COLOR_LAVA_GLOW);
-                for (col = 4; col < (SCREEN_HEIGHT - GROUND_Y); col++)
-                    desenha_pixel(sx, GROUND_Y + col, COLOR_LAVA);
+                int col_tile = mundo_x % LAVA_TILE_SIZE;
+                const unsigned short *topo = lava_topo_anim[lava_anim_frame];
+                for (col = 0; col < LAVA_TILE_SIZE && GROUND_Y + col < SCREEN_HEIGHT; col++) {
+                    unsigned short cor = topo[col * LAVA_TILE_SIZE + col_tile];
+                    if (cor != LAVA_TRANSPARENT) desenha_pixel(sx, GROUND_Y + col, cor);
+                }
+                for (col = LAVA_TILE_SIZE; col < (SCREEN_HEIGHT - GROUND_Y); col++) {
+                    int tile_y = (col - LAVA_TILE_SIZE) % LAVA_TILE_SIZE;
+                    desenha_pixel(sx, GROUND_Y + col, lava_corpo[tile_y * LAVA_TILE_SIZE + col_tile]);
+                }
             } else {
                 for (col = 0; col < (SCREEN_HEIGHT - GROUND_Y); col++)
                     desenha_pixel(sx, GROUND_Y + col, cor_chao_zona(zona));
@@ -190,19 +206,19 @@ void desenha_bandeira(void) {
 }
 
 void desenha_tokens(void) {
-    int i;
+    int i, tx, ty;
     for (i = 0; i < MAX_TOKENS; i++) {
         int sx, sy;
         if (tokens[i].coletado) continue;
         sx = tokens[i].x - camera_x;
         sy = tokens[i].y;
-        if (sx < -10 || sx > SCREEN_WIDTH) continue;
+        if (sx < -TOKEN_SPRITE_W || sx > SCREEN_WIDTH) continue;
 
-        desenha_retangulo(sx + 3, sy,     2, 2, COLOR_TOKEN);
-        desenha_retangulo(sx + 1, sy + 2, 6, 2, COLOR_TOKEN);
-        desenha_retangulo(sx,     sy + 4, 8, 2, COLOR_TOKEN);
-        desenha_retangulo(sx + 2, sy + 4, 4, 2, COLOR_TOKEN_BRILHO);
-        desenha_retangulo(sx + 1, sy + 6, 6, 2, COLOR_TOKEN);
-        desenha_retangulo(sx + 3, sy + 8, 2, 2, COLOR_TOKEN);
+        for (ty = 0; ty < TOKEN_SPRITE_H; ty++) {
+            for (tx = 0; tx < TOKEN_SPRITE_W; tx++) {
+                unsigned short cor = token_sprite[ty * TOKEN_SPRITE_W + tx];
+                if (cor != TOKEN_TRANSPARENT) desenha_pixel(sx + tx, sy + ty, cor);
+            }
+        }
     }
 }

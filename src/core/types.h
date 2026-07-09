@@ -2,7 +2,8 @@
 #define TYPES_H
 
 typedef enum { FACING_LEFT, FACING_RIGHT } Direcao;
-typedef enum { ESTADO_JOGANDO, ESTADO_PAUSADO, ESTADO_GAMEOVER, ESTADO_VITORIA } EstadoJogo;
+typedef enum { ESTADO_INICIO, ESTADO_JOGANDO, ESTADO_PAUSADO, ESTADO_GAMEOVER, ESTADO_VITORIA } EstadoJogo;
+typedef enum { ANIM_IDLE, ANIM_RUN, ANIM_JUMP, ANIM_SHOOT, ANIM_INTRO } AnimacaoEstado;
 
 typedef struct {
     int x, y;
@@ -13,6 +14,9 @@ typedef struct {
     int pontuacao;
     int invulneravel;
     int atacando;
+    AnimacaoEstado anim_estado;
+    int anim_frame;
+    int anim_timer;
 } Jogador;
 
 typedef enum { COMPORTAMENTO_PARADO, COMPORTAMENTO_PATRULHA, COMPORTAMENTO_PERSEGUICAO } ComportamentoInimigo;

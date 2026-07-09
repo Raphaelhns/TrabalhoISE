@@ -4,6 +4,7 @@
 #include "enemy.h"
 #include "projectiles.h"
 #include "level.h"
+#include "tela_inicio.h"
 
 int camera_x = 0;
 int nivel_largura = 1500;
@@ -52,6 +53,15 @@ int esta_sobre_lava(int x, int largura) {
     return 0;
 }
 
+void desenha_tela_inicio(void) {
+    int x, y;
+    for (y = 0; y < SCREEN_HEIGHT; y++) {
+        for (x = 0; x < SCREEN_WIDTH; x++) {
+            desenha_pixel(x, y, tela_inicio[y * SCREEN_WIDTH + x]);
+        }
+    }
+}
+
 void desenha_tela_gameover(void) {
     limpa_tela(COLOR_BLACK);
     desenha_retangulo(60, 90, 200, 60, 0x4000);
@@ -95,6 +105,10 @@ void desenha_tela_pausa(void) {
 }
 
 void renderiza_cena(void) {
+    if (estado == ESTADO_INICIO) {
+        desenha_tela_inicio();
+        return;
+    }
     if (estado == ESTADO_GAMEOVER) {
         desenha_tela_gameover();
         return;
@@ -130,7 +144,9 @@ void processa_pausa_e_reinicio(void) {
     int chave_atual = chave_sw0_ligada();
 
     if (chave_atual && !chave_anterior) {
-        if (estado == ESTADO_JOGANDO) {
+        if (estado == ESTADO_INICIO) {
+            estado = ESTADO_JOGANDO;
+        } else if (estado == ESTADO_JOGANDO) {
             estado = ESTADO_PAUSADO;
         } else if (estado == ESTADO_PAUSADO) {
             estado = ESTADO_JOGANDO;

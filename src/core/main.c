@@ -6,6 +6,7 @@
 int main(void) {
     inicializa_video();
     inicializa_jogo();
+    estado = ESTADO_INICIO;
 
     while (1) {
         le_entrada();

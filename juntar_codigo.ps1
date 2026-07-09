@@ -2,12 +2,16 @@ $arquivos_h = @(
     "src\core\constants.h",
     "src\core\types.h",
     "src\core\hardware.h",
+    "src\entidades\player_sprites.h",
+    "src\entidades\token_sprites.h",
     "src\entidades\player.h",
     "src\entidades\enemy.h",
     "src\entidades\projectiles.h",
     "src\ambiente\fundo_cenario1.h",
     "src\ambiente\fundo_cenario2.h",
     "src\ambiente\fundo_cenario3.h",
+    "src\ambiente\lava_sprites.h",
+    "src\ambiente\tela_inicio.h",
     "src\ambiente\level.h",
     "src\core\game.h"
 )

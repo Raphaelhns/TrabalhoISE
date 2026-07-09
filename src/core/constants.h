@@ -36,8 +36,9 @@
 #define MOVE_SPEED          4
 #define MAX_FALL_SPEED      9
 
-#define PLAYER_W           12
-#define PLAYER_H           20
+#define PLAYER_W           24
+#define PLAYER_H           24
+#define ANIM_SPEED          4  /* frames de jogo por frame de animacao */
 
 #define MAX_INIMIGOS       10
 #define INIMIGO_W           14
@@ -69,8 +70,8 @@
 #define BANDEIRA_X        1470
 
 #define MAX_TOKENS         10
-#define TOKEN_W             8
-#define TOKEN_H             8
+#define TOKEN_W            16
+#define TOKEN_H            16
 #define TOKENS_PARA_VENCER  8
 
 /* ============================================================================
