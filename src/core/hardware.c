@@ -27,9 +27,11 @@ void limpa_tela(short int cor) {
 }
 
 void aguarda_swap_completo(void) {
+#ifndef CPULATOR
     volatile int *status_ptr = (int *)VGA_STATUS;
     while ((*status_ptr & 0x01) != 0) {
     }
+#endif
 }
 
 void inicializa_video(void) {

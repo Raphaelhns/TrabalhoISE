@@ -21,6 +21,10 @@ int main(void) {
 
         le_entrada();
 
+#ifdef CPULATOR
+        atraso_frame();
+#endif
+
         if (estado == ESTADO_GAMEOVER || estado == ESTADO_VITORIA) {
             int espera;
             for (espera = 0; espera < 30; espera++) {

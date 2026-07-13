@@ -2,6 +2,14 @@
 #define CONSTANTS_H
 
 /* ============================================================================
+ * CONFIGURACAO DE AMBIENTE (CPULator vs Placa)
+ * ============================================================================
+ * Descomente a linha abaixo para rodar no CPUlator.
+ * Deixe comentada para rodar na Placa DE1-SoC real.
+ */
+#define CPULATOR
+
+/* ============================================================================
  * ENDERECOS DE HARDWARE (memory-mapped I/O) - DE1-SoC / CPUlator
  * ============================================================================
  */

@@ -5,6 +5,14 @@
 #define CONSTANTS_H
 
 /* ============================================================================
+ * CONFIGURACAO DE AMBIENTE (CPULator vs Placa)
+ * ============================================================================
+ * Descomente a linha abaixo para rodar no CPUlator.
+ * Deixe comentada para rodar na Placa DE1-SoC real.
+ */
+#define CPULATOR
+
+/* ============================================================================
  * ENDERECOS DE HARDWARE (memory-mapped I/O) - DE1-SoC / CPUlator
  * ============================================================================
  */
@@ -16370,9 +16378,11 @@ void limpa_tela(short int cor) {
 }
 
 void aguarda_swap_completo(void) {
+#ifndef CPULATOR
     volatile int *status_ptr = (int *)VGA_STATUS;
     while ((*status_ptr & 0x01) != 0) {
     }
+#endif
 }
 
 void inicializa_video(void) {
@@ -17349,7 +17359,11 @@ void le_entrada(void) {
 
 void atraso_frame(void) {
     volatile int i;
+#ifdef CPULATOR
+    for (i = 0; i < 50000; i++) {
+#else
     for (i = 0; i < 8000; i++) {
+#endif
     }
 }
 
@@ -17370,6 +17384,10 @@ int main(void) {
         troca_buffers();
 
         le_entrada();
+
+#ifdef CPULATOR
+        atraso_frame();
+#endif
 
         if (estado == ESTADO_GAMEOVER || estado == ESTADO_VITORIA) {
             int espera;

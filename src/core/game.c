@@ -167,6 +167,10 @@ void le_entrada(void) {
 
 void atraso_frame(void) {
     volatile int i;
+#ifdef CPULATOR
+    for (i = 0; i < 50000; i++) {
+#else
     for (i = 0; i < 8000; i++) {
+#endif
     }
 }
